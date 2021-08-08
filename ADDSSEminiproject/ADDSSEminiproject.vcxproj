@@ -87,6 +87,7 @@
     <ClCompile Include="SortTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ParallelMergeSort.cuh" />
     <ClInclude Include="SerialMergeSort.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

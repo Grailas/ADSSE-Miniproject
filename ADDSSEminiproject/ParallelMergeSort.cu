@@ -1,8 +1,10 @@
-﻿#include <cuda.h>
+﻿#include <chrono>
+#include <cuda.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <device_functions.h>
 #include <thrust/swap.h>
+#include "ParallelMergeSort.cuh"
 
 
 
@@ -31,7 +33,7 @@
 
 __device__ unsigned int BinarySearch(float value, float* array, unsigned int subarrayLow, unsigned int subarrayHigh)
 {
-	unsigned int low = subarrayLow, high = max(subarrayLow, subarrayHigh + 1);
+	unsigned int low = subarrayLow, high = umax(subarrayLow, subarrayHigh + 1);
 	while (low < high)
 	{
 		unsigned int mid = (low + high) / 2;
@@ -85,7 +87,7 @@ __global__ void ParallelMerge(float* toSort, unsigned int leftLow, unsigned int 
 	}
 }
 
-__global__ void ParallelMergeSort(float* toSort, unsigned int lowIndex, unsigned int highIndex, float* result, unsigned int resultLowIndex)
+__global__ __device__ void ParallelMergeSort(float* toSort, unsigned int lowIndex, unsigned int highIndex, float* result, unsigned int resultLowIndex)
 {
 	unsigned int n = highIndex - lowIndex + 1;
 	if (n == 1)
@@ -108,5 +110,36 @@ __global__ void ParallelMergeSort(float* toSort, unsigned int lowIndex, unsigned
 			n,
 			result,
 			resultLowIndex);
+		CHECK_NO_EXIT(cudaDeviceSynchronize());
+		cudaFree(&subarray);
 	}
+}
+
+extern void test()
+{
+	printf("Hello");
+}
+
+extern double RunParallelMergeSort(float* toSort, unsigned int values, float* result)
+{
+	printf("Running parallel merge sort...\n\n");
+	//Allocate memory for device
+	float* d_toSort;
+	CHECK(cudaMalloc(&d_toSort, values * sizeof(float)));
+	float* d_result;
+	CHECK(cudaMalloc(&d_result, values * sizeof(float)));
+
+	
+	//cudaDeviceLimit(cudaLimitDevRuntimeSyncDepth, 4);
+
+	auto start = std::chrono::steady_clock::now();
+	ParallelMergeSort << <1, 1 >> > (d_toSort, 0, values - 1, d_result, 0);
+	auto stop = std::chrono::steady_clock::now();
+	double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count();
+
+	cudaMemcpy(result, d_result, values * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaFree(d_toSort);
+	cudaFree(d_result);
+
+	return elapsedTime;
 }
