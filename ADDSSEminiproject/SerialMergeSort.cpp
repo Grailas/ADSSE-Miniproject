@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "SerialMergeSort.h"
 
-void merge(float toSort[], unsigned int leftIndex, unsigned int centerIndex, unsigned int rightIndex)
+void Merge(float toSort[], unsigned int leftIndex, unsigned int centerIndex, unsigned int rightIndex)
 {
 	unsigned int leftSplitSize = centerIndex - leftIndex + 1,
 		rightSplitSize = rightIndex - centerIndex;
@@ -34,18 +34,18 @@ void merge(float toSort[], unsigned int leftIndex, unsigned int centerIndex, uns
 	free(rightSplit);
 }
 
-void mergeSort(float toSort[], unsigned int leftIndex, unsigned int rightIndex)
+void MergeSort(float toSort[], unsigned int leftIndex, unsigned int rightIndex)
 {
 	if (leftIndex < rightIndex)
 	{
 		unsigned int centerIndex = (leftIndex + rightIndex) / 2; //The indicies should never be negative, so we should always get a rounding towards zero due to truncation
-		mergeSort(toSort, leftIndex, centerIndex);
-		mergeSort(toSort, centerIndex + 1, rightIndex);
-		merge(toSort, leftIndex, centerIndex, rightIndex);
+		MergeSort(toSort, leftIndex, centerIndex);
+		MergeSort(toSort, centerIndex + 1, rightIndex);
+		Merge(toSort, leftIndex, centerIndex, rightIndex);
 	}
 }
 
-void mergeSort(float* toSort, unsigned int size) //For convenience
+void MergeSort(float* toSort, unsigned int size) //For convenience
 {
-	mergeSort(toSort, 0, size - 1);
+	MergeSort(toSort, 0, size - 1);
 }

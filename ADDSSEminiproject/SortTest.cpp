@@ -34,7 +34,7 @@ void main()
 	printf("\n\n");
 
 	auto start = std::chrono::steady_clock::now();
-	mergeSort(toSort, values);
+	MergeSort(toSort, values);
 	auto stop = std::chrono::steady_clock::now();
 	double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count();
 
