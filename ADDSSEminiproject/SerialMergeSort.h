@@ -1,7 +1,7 @@
 #pragma once
 
-void merge(float toSort[], unsigned int leftIndex, unsigned int centerIndex, unsigned int rightIndex);
+void Merge(float toSort[], unsigned int leftIndex, unsigned int centerIndex, unsigned int rightIndex);
 
-void mergeSort(float toSort[], unsigned int leftIndex, unsigned int rightIndex);
+void MergeSort(float toSort[], unsigned int leftIndex, unsigned int rightIndex);
 
-void mergeSort(float* toSort, unsigned int size);
+void MergeSort(float* toSort, unsigned int size);
