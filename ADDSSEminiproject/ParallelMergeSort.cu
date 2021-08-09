@@ -87,7 +87,7 @@ __global__ void ParallelMerge(float* toSort, unsigned int leftLow, unsigned int 
 	}
 }
 
-__global__ __device__ void ParallelMergeSort(float* toSort, unsigned int lowIndex, unsigned int highIndex, float* result, unsigned int resultLowIndex)
+__global__ void ParallelMergeSort(float* toSort, unsigned int lowIndex, unsigned int highIndex, float* result, unsigned int resultLowIndex)
 {
 	unsigned int n = highIndex - lowIndex + 1;
 	if (n == 1)
@@ -122,18 +122,19 @@ extern void test()
 
 extern double RunParallelMergeSort(float* toSort, unsigned int values, float* result)
 {
-	printf("Running parallel merge sort...\n\n");
 	//Allocate memory for device
 	float* d_toSort;
 	CHECK(cudaMalloc(&d_toSort, values * sizeof(float)));
+	cudaMemcpy(d_toSort, toSort, values * sizeof(float), cudaMemcpyHostToDevice);
+
 	float* d_result;
 	CHECK(cudaMalloc(&d_result, values * sizeof(float)));
 
-	
-	//cudaDeviceLimit(cudaLimitDevRuntimeSyncDepth, 4);
+	CHECK(cudaDeviceSetLimit(cudaLimitDevRuntimeSyncDepth, 18)); //The maximum launch depth is 24, but setting it too high reserves too much memory, returning cudaErrorMemoryAllocation
 
 	auto start = std::chrono::steady_clock::now();
 	ParallelMergeSort << <1, 1 >> > (d_toSort, 0, values - 1, d_result, 0);
+	cudaDeviceSynchronize();
 	auto stop = std::chrono::steady_clock::now();
 	double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count();
 
